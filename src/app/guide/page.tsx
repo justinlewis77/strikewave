@@ -9,6 +9,12 @@ import { detectSpawnStage, detectSeason } from "@/engine/recommender";
 import { calculateSolunar } from "@/engine/solunar";
 import type { ConditionSnapshot } from "@/engine/types";
 import { SeasonalPatternCard } from "@/components/SeasonalPatternCard";
+import { KnotGuide } from "@/components/KnotGuide";
+import { TackleChecklist } from "@/components/TackleChecklist";
+import { BaitTuningGuide } from "@/components/BaitTuningGuide";
+import { SeasonalWeedGuide } from "@/components/SeasonalWeedGuide";
+import { DrillMode } from "@/components/DrillMode";
+import { FishingReportLog } from "@/components/FishingReportLog";
 
 const QUICK_PROMPTS = [
   "What's my best setup for right now?",
@@ -19,14 +25,14 @@ const QUICK_PROMPTS = [
 ];
 
 export default function GuidePage() {
-  const { rods, plastics, settings, ready } = useDB();
+  const { rods, plastics, settings, reports, ready, saveReport, removeReport } = useDB();
   const location = useLocation(settings.use_gps);
   const lat = location.lat ?? settings.location_lat ?? null;
   const lon = location.lon ?? settings.location_lon ?? null;
   const { weather } = useWeather(lat, lon);
   const { messages, loading, error, sendMessage, clearSession } = useAIGuide();
   const [input, setInput] = useState("");
-  const [tab, setTab] = useState<"chat" | "patterns">("chat");
+  const [tab, setTab] = useState<"chat" | "patterns" | "tools" | "drills">("chat");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const snapshot = useMemo<ConditionSnapshot | null>(() => {
@@ -71,21 +77,56 @@ export default function GuidePage() {
           )}
         </div>
 
-        <div className="flex gap-1 bg-white/5 p-1 rounded-xl">
-          <button
-            onClick={() => setTab("chat")}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === "chat" ? "bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30" : "text-slate-400"}`}
-          >
-            🤖 AI Chat
-          </button>
-          <button
-            onClick={() => setTab("patterns")}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${tab === "patterns" ? "bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30" : "text-slate-400"}`}
-          >
-            📅 Seasonal Patterns
-          </button>
+        <div className="grid grid-cols-2 gap-1 bg-white/5 p-1 rounded-xl">
+          {([["chat", "🤖 AI Chat"], ["patterns", "📅 Seasonal"], ["tools", "🎣 Tools"], ["drills", "🏆 Drills"]] as const).map(([key, label]) => (
+            <button key={key} onClick={() => setTab(key)}
+              className={`py-2 rounded-lg text-xs font-semibold transition-all ${tab === key ? "bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30" : "text-slate-400"}`}>
+              {label}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* Tools tab */}
+      {tab === "tools" && (
+        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+          {snapshot && (
+            <div className="glass-card p-4">
+              <TackleChecklist spawn_stage={snapshot.spawn_stage} />
+            </div>
+          )}
+          {snapshot && (
+            <div className="glass-card p-4">
+              <BaitTuningGuide spawn_stage={snapshot.spawn_stage} clarity={snapshot.water_clarity} wt={snapshot.weather.water_temp_f ?? 60} />
+            </div>
+          )}
+          <div className="glass-card p-4">
+            <KnotGuide />
+          </div>
+          {snapshot && (
+            <div className="glass-card p-4">
+              <SeasonalWeedGuide current_stage={snapshot.spawn_stage} />
+            </div>
+          )}
+          <div className="glass-card p-4">
+            <FishingReportLog
+              reports={reports}
+              fishing_mode={settings.fishing_mode ?? "shore"}
+              onSave={saveReport}
+              onDelete={removeReport}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Drills tab */}
+      {tab === "drills" && (
+        <div className="flex-1 overflow-y-auto pr-1">
+          <div className="glass-card p-4">
+            <DrillMode />
+          </div>
+        </div>
+      )}
 
       {/* Patterns tab */}
       {tab === "patterns" && (

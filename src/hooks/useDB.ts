@@ -7,10 +7,11 @@ import {
   getPlastics, putPlastic, deletePlastic,
   getCatches, putCatch, deleteCatch,
   getSpots, putSpot, deleteSpot,
+  getReports, putReport, deleteReport,
   getSettings, putSettings,
 } from "@/lib/db";
 import { SEED_RODS, SEED_LURES, SEED_PLASTICS } from "@/lib/seed";
-import type { RodSetup, Lure, SoftPlastic, AppSettings, CatchEntry, FishingSpot } from "@/engine/types";
+import type { RodSetup, Lure, SoftPlastic, AppSettings, CatchEntry, FishingSpot, FishingReport } from "@/engine/types";
 
 const DEFAULT_SETTINGS: AppSettings = {
   water_clarity: "stained",
@@ -25,12 +26,13 @@ export function useDB() {
   const [plastics, setPlastics] = useState<SoftPlastic[]>([]);
   const [catches, setCatches] = useState<CatchEntry[]>([]);
   const [spots, setSpots] = useState<FishingSpot[]>([]);
+  const [reports, setReports] = useState<FishingReport[]>([]);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [ready, setReady] = useState(false);
 
   const loadAll = useCallback(async () => {
-    const [r, l, p, c, sp, s] = await Promise.all([
-      getRods(), getLures(), getPlastics(), getCatches(), getSpots(), getSettings(),
+    const [r, l, p, c, sp, rp, s] = await Promise.all([
+      getRods(), getLures(), getPlastics(), getCatches(), getSpots(), getReports(), getSettings(),
     ]);
 
     if (r.length === 0) {
@@ -50,6 +52,7 @@ export function useDB() {
 
     setCatches(c);
     setSpots(sp);
+    setReports(rp);
     setSettings(s ?? DEFAULT_SETTINGS);
     setReady(true);
   }, []);
@@ -121,6 +124,19 @@ export function useDB() {
     setSpots((prev) => prev.filter((s) => s.id !== id));
   }, []);
 
+  // Reports
+  const saveReport = useCallback(async (r: FishingReport) => {
+    await putReport(r);
+    setReports((prev) => {
+      const idx = prev.findIndex((x) => x.id === r.id);
+      return idx >= 0 ? prev.map((x) => (x.id === r.id ? r : x)) : [...prev, r];
+    });
+  }, []);
+  const removeReport = useCallback(async (id: string) => {
+    await deleteReport(id);
+    setReports((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
   // Settings
   const saveSettings = useCallback(async (s: AppSettings) => {
     await putSettings(s);
@@ -128,12 +144,13 @@ export function useDB() {
   }, []);
 
   return {
-    rods, lures, plastics, catches, spots, settings, ready,
+    rods, lures, plastics, catches, spots, reports, settings, ready,
     saveRod, removeRod,
     saveLure, removeLure,
     savePlastic, removePlastic,
     saveCatch, removeCatch,
     saveSpot, removeSpot,
+    saveReport, removeReport,
     saveSettings,
     reload: loadAll,
   };

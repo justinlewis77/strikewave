@@ -12,11 +12,17 @@ import { RecommendationCard } from "@/components/RecommendationCard";
 import { SolunarCard } from "@/components/SolunarCard";
 import { CastingAdvisor } from "@/components/CastingAdvisor";
 import { CatchLog } from "@/components/CatchLog";
+import { ActivityScore } from "@/components/ActivityScore";
+import { RetrieveAdvisor } from "@/components/RetrieveAdvisor";
+import { StructureFinder } from "@/components/StructureFinder";
+import { LureRotation } from "@/components/LureRotation";
+import { SpotPlanner } from "@/components/SpotPlanner";
+import { PressureChart } from "@/components/PressureChart";
 
 const BANK_FACING_KEY = "sw_bank_facing";
 
 export default function DashboardPage() {
-  const { rods, catches, settings, ready, saveCatch, removeCatch, saveSettings } = useDB();
+  const { rods, lures, catches, spots, settings, ready, saveCatch, removeCatch, saveSettings } = useDB();
   const location = useLocation(settings.use_gps);
 
   const lat = location.lat ?? settings.location_lat ?? null;
@@ -132,6 +138,17 @@ export default function DashboardPage() {
 
       {snapshot && <SolunarCard solunar={snapshot.solunar} />}
 
+      {/* Activity Score */}
+      {snapshot && <ActivityScore snap={snapshot} />}
+
+      {/* Pressure Chart */}
+      {snapshot && lat && lon && (
+        <div className="glass-card p-4">
+          <p className="font-orbitron text-xs font-bold tracking-widest text-slate-400 uppercase mb-3">Pressure Trend</p>
+          <PressureChart lat={lat} lon={lon} currentMb={snapshot.weather.pressure_mb} trend={snapshot.weather.pressure_trend} />
+        </div>
+      )}
+
       {/* Casting Advisor — shore only */}
       {snapshot && settings.fishing_mode === "shore" && (
         <CastingAdvisor
@@ -142,6 +159,20 @@ export default function DashboardPage() {
         />
       )}
 
+      {/* Retrieve Advisor */}
+      {snapshot && (
+        <div className="glass-card p-4">
+          <RetrieveAdvisor snap={snapshot} topLure={recommendations[0]?.lures[0]?.lure_type} />
+        </div>
+      )}
+
+      {/* Structure Finder */}
+      {snapshot && (
+        <div className="glass-card p-4">
+          <StructureFinder snap={snapshot} />
+        </div>
+      )}
+
       {/* Rod Recommendations */}
       {recommendations.length > 0 && (
         <div className="space-y-4">
@@ -149,8 +180,22 @@ export default function DashboardPage() {
             Rod Recommendations
           </h2>
           {recommendations.map((rec) => (
-            <RecommendationCard key={rec.rod.id} recommendation={rec} />
+            <RecommendationCard key={rec.rod.id} recommendation={rec} clarity={settings.water_clarity} mode={settings.fishing_mode ?? "shore"} />
           ))}
+        </div>
+      )}
+
+      {/* Lure Rotation */}
+      {snapshot && (
+        <div className="glass-card p-4">
+          <LureRotation snap={snapshot} inventory={lures} />
+        </div>
+      )}
+
+      {/* Spot Planner */}
+      {snapshot && spots.length > 0 && (
+        <div className="glass-card p-4">
+          <SpotPlanner snap={snapshot} spots={spots} />
         </div>
       )}
 

@@ -1,13 +1,56 @@
 "use client";
 
 import { useState } from "react";
-import type { RodRecommendation, LureScore } from "@/engine/types";
+import type { RodRecommendation, LureScore, LureType, WaterClarity, FishingMode } from "@/engine/types";
+
+const HOOK_SET: Partial<Record<LureType, string>> = {
+  chatterbait: "Reel down, hard sideways sweep — keep rod low",
+  frog: "Wait for weight, then set hard twice",
+  jig: "Rod tip down, sharp upward sweep",
+  texas_rig: "Rod tip down, sharp upward sweep — bury the hook",
+  carolina_rig: "Long, hard sweep — big gap to cover",
+  dropshot: "Light side sweep, keep tension — small hook",
+  ned_rig: "Light upward sweep — small jig hook",
+  shaky_head: "Sharp upward sweep, they're hooked on the fall",
+  wacky_rig: "Light sideways sweep — let them load",
+  neko_rig: "Light side sweep — finesse hook",
+  spinnerbait: "Reel down, hard sweep — they hook themselves",
+  topwater: "Wait for weight, then reel down and sweep hard",
+  buzzbait: "Wait a half second, sweep hard",
+  fluke: "Reel down, hard sweep on the pause bite",
+  swimbait_paddle: "Reel down, sweep — usually self-hooking",
+  squarebill: "Reel down, sweep — trebles do the work",
+  lipless_crank: "Reel down, sweep on the fall bite",
+  diving_crank: "Reel down, sweep — let the rod load",
+  underspun: "Light sweep on pause bite",
+  swimbait_glide: "Wait for turn, sweep hard",
+};
+
+function getLineAdvice(lure: LureType, clarity: WaterClarity, mode: FishingMode): string {
+  const shore = mode === "shore";
+  if (lure === "frog") return shore ? "50lb braid (heavy mat control)" : "65lb braid (max penetration)";
+  if (lure === "chatterbait") return shore ? "15lb fluoro (less noise in clear shallows)" : "17lb fluoro";
+  if (lure === "spinnerbait") return shore ? "14lb fluoro" : "15lb fluoro";
+  if (lure === "texas_rig") return shore ? "14lb fluoro (open), 50lb braid (heavy cover)" : "17lb fluoro or 50lb braid for mats";
+  if (lure === "carolina_rig") return "17lb fluoro main, 12lb fluoro leader";
+  if (lure === "dropshot") return clarity === "clear" ? (shore ? "6lb fluoro" : "8lb fluoro") : "10lb fluoro";
+  if (lure === "ned_rig" || lure === "shaky_head") return clarity === "clear" ? (shore ? "6lb fluoro" : "8lb fluoro") : "10lb fluoro";
+  if (lure === "wacky_rig" || lure === "neko_rig") return clarity === "clear" ? "6-8lb fluoro" : "10lb fluoro";
+  if (lure === "fluke") return shore ? "10lb fluoro" : "12lb fluoro";
+  if (lure === "squarebill" || lure === "diving_crank" || lure === "lipless_crank") return "12-15lb fluoro (stretch helps on trebles)";
+  if (lure === "topwater" || lure === "buzzbait") return shore ? "14lb mono or braid" : "17lb braid";
+  if (lure === "swimbait_paddle" || lure === "swimbait_glide") return shore ? "14lb fluoro" : "17lb fluoro";
+  if (lure === "jig") return shore ? "15lb fluoro" : "17lb fluoro";
+  return clarity === "clear" ? (shore ? "10lb fluoro" : "12lb fluoro") : "15lb fluoro";
+}
 
 interface Props {
   recommendation: RodRecommendation;
+  clarity?: WaterClarity;
+  mode?: FishingMode;
 }
 
-function LureRow({ lure, rank }: { lure: LureScore; rank: number }) {
+function LureRow({ lure, rank, clarity, mode }: { lure: LureScore; rank: number; clarity?: WaterClarity; mode?: FishingMode }) {
   const [expanded, setExpanded] = useState(false);
   const maxScore = 30;
   const pct = Math.min(100, Math.round((lure.score / maxScore) * 100));
@@ -79,13 +122,25 @@ function LureRow({ lure, rank }: { lure: LureScore; rank: number }) {
               </ul>
             </div>
           )}
+          {HOOK_SET[lure.lure_type] && (
+            <div className="mt-1.5 px-2 py-1.5 rounded-md bg-neon-purple/8 border border-neon-purple/15">
+              <span className="text-xs text-neon-purple font-semibold">Hook Set: </span>
+              <span className="text-xs text-slate-300">{HOOK_SET[lure.lure_type]}</span>
+            </div>
+          )}
+          {(clarity && mode) && (
+            <div className="mt-1 px-2 py-1.5 rounded-md bg-neon-cyan/6 border border-neon-cyan/12">
+              <span className="text-xs text-neon-cyan font-semibold">Line: </span>
+              <span className="text-xs text-slate-300">{getLineAdvice(lure.lure_type, clarity, mode)}</span>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-export function RecommendationCard({ recommendation }: Props) {
+export function RecommendationCard({ recommendation, clarity, mode }: Props) {
   const { rod, lures } = recommendation;
 
   return (
@@ -119,7 +174,7 @@ export function RecommendationCard({ recommendation }: Props) {
       {/* Lure list */}
       <div className="space-y-3">
         {lures.map((lure, i) => (
-          <LureRow key={lure.lure_type} lure={lure} rank={i} />
+          <LureRow key={lure.lure_type} lure={lure} rank={i} clarity={clarity} mode={mode} />
         ))}
       </div>
     </div>

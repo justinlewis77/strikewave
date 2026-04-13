@@ -234,24 +234,39 @@ export default function SettingsPage() {
 
         {!notifGranted ? (
           <div>
-            <p className="text-xs text-slate-400 mb-2">Get notified 30 min before major solunar bite windows.</p>
+            <p className="text-xs text-slate-400 mb-2">Get notified 30 min before major/minor solunar bite windows.</p>
             <button onClick={handleRequestNotif} className="w-full py-2 rounded-lg text-sm font-semibold bg-neon-purple/15 text-neon-purple border border-neon-purple/30 hover:bg-neon-purple/25 transition-colors">
               Enable Notifications
             </button>
           </div>
         ) : (
-          <label className="flex items-center justify-between cursor-pointer">
-            <div>
-              <p className="text-sm text-white">Solunar Bite Alerts</p>
-              <p className="text-xs text-slate-500">Notify 30 min before major/minor windows</p>
-            </div>
-            <div
-              className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${form.notifications_enabled ? "bg-neon-purple/30 border border-neon-purple/40" : "bg-white/10 border border-white/10"}`}
-              onClick={() => set("notifications_enabled", !form.notifications_enabled)}
+          <div className="space-y-3">
+            <label className="flex items-center justify-between cursor-pointer">
+              <div>
+                <p className="text-sm text-white">Solunar Bite Alerts</p>
+                <p className="text-xs text-slate-500">Notify 30 min before major/minor windows</p>
+              </div>
+              <div
+                className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${form.notifications_enabled ? "bg-neon-purple/30 border border-neon-purple/40" : "bg-white/10 border border-white/10"}`}
+                onClick={() => set("notifications_enabled", !form.notifications_enabled)}
+              >
+                <div className={`absolute top-0.5 w-5 h-5 rounded-full transition-all ${form.notifications_enabled ? "left-5 bg-neon-purple" : "left-0.5 bg-slate-400"}`} />
+              </div>
+            </label>
+            <button
+              onClick={() => {
+                if (Notification.permission === "granted") {
+                  new Notification("🎣 StrikeWave — Test Alert", {
+                    body: "Major bite window starts in 30 min — get to the water! (Shinanguag Lake)",
+                    icon: "/icons/icon-192.png",
+                  });
+                }
+              }}
+              className="w-full py-2 rounded-lg text-xs font-semibold bg-white/5 text-slate-400 border border-white/10 hover:bg-white/8 transition-colors"
             >
-              <div className={`absolute top-0.5 w-5 h-5 rounded-full transition-all ${form.notifications_enabled ? "left-5 bg-neon-purple" : "left-0.5 bg-slate-400"}`} />
-            </div>
-          </label>
+              Send Test Notification
+            </button>
+          </div>
         )}
       </section>
 

@@ -1,10 +1,10 @@
 "use client";
 
 import { openDB, type IDBPDatabase } from "idb";
-import type { RodSetup, Lure, SoftPlastic, AppSettings, CatchEntry, FishingSpot } from "@/engine/types";
+import type { RodSetup, Lure, SoftPlastic, AppSettings, CatchEntry, FishingSpot, FishingReport } from "@/engine/types";
 
 const DB_NAME = "strikewave";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
@@ -24,6 +24,11 @@ export function getDB(): Promise<IDBPDatabase> {
           }
           if (!db.objectStoreNames.contains("spots")) {
             db.createObjectStore("spots", { keyPath: "id" });
+          }
+        }
+        if (oldVersion < 3) {
+          if (!db.objectStoreNames.contains("reports")) {
+            db.createObjectStore("reports", { keyPath: "id" });
           }
         }
       },
@@ -100,6 +105,20 @@ export async function putSpot(spot: FishingSpot): Promise<void> {
 export async function deleteSpot(id: string): Promise<void> {
   const db = await getDB();
   await db.delete("spots", id);
+}
+
+// ── Reports ───────────────────────────────────────────
+export async function getReports(): Promise<FishingReport[]> {
+  const db = await getDB();
+  return db.getAll("reports");
+}
+export async function putReport(r: FishingReport): Promise<void> {
+  const db = await getDB();
+  await db.put("reports", r);
+}
+export async function deleteReport(id: string): Promise<void> {
+  const db = await getDB();
+  await db.delete("reports", id);
 }
 
 // ── Settings ──────────────────────────────────────────

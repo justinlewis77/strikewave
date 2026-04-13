@@ -190,6 +190,20 @@ export interface FishingSpot {
   notes?: string;
 }
 
+export interface FishingReport {
+  id: string;
+  date: string;
+  session_duration_hours?: number;
+  fish_caught?: number;
+  fish_landed?: number;
+  best_lure_name?: string;
+  best_lure_color?: string;
+  water_clarity_observed?: WaterClarity;
+  weed_growth?: "low" | "moderate" | "heavy";
+  notes?: string;
+  fishing_mode: FishingMode;
+}
+
 export interface AppSettings {
   location_lat?: number;
   location_lon?: number;

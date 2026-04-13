@@ -13,30 +13,36 @@ function parseTime(timeStr: string): Date {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, m, 0, 0);
 }
 
-function scheduleNotifications(periods: [string, string][], label: string) {
+function getLakeName(): string {
+  try {
+    const settings = JSON.parse(localStorage.getItem("sw_settings") ?? "{}");
+    return settings?.lake_profile?.lake_name || "your lake";
+  } catch { return "your lake"; }
+}
+
+function scheduleWindow(start: string, isMajor: boolean) {
   const now = Date.now();
   const THIRTY_MIN = 30 * 60 * 1000;
-
-  for (const [start] of periods) {
-    try {
-      const startTime = parseTime(start);
-      const fireAt = startTime.getTime() - THIRTY_MIN;
-      const delay = fireAt - now;
-      if (delay > 0 && delay < 24 * 60 * 60 * 1000) {
-        setTimeout(() => {
-          if (Notification.permission === "granted") {
-            new Notification("🎣 StrikeWave Bite Alert", {
-              body: `${label} bite window starts in 30 min — get to the water!`,
-              icon: "/icons/icon-192.png",
-              badge: "/icons/icon-192.png",
-            });
-          }
-        }, delay);
-      }
-    } catch {
-      // Invalid time string — skip
+  try {
+    const startTime = parseTime(start);
+    const fireAt = startTime.getTime() - THIRTY_MIN;
+    const delay = fireAt - now;
+    if (delay > 0 && delay < 24 * 60 * 60 * 1000) {
+      setTimeout(() => {
+        if (Notification.permission !== "granted") return;
+        const lake = getLakeName();
+        const label = isMajor ? "🔥 MAJOR" : "Minor";
+        const body = isMajor
+          ? `${label} bite window starts in 30 min on ${lake} — GET ON THE WATER! Best pattern right now.`
+          : `${label} bite window in 30 min on ${lake} — good window, fish are moving.`;
+        new Notification("🎣 StrikeWave Bite Alert", {
+          body,
+          icon: "/icons/icon-192.png",
+          badge: "/icons/icon-192.png",
+        });
+      }, delay);
     }
-  }
+  } catch { /* invalid time */ }
 }
 
 export function ServiceWorkerRegistrar() {
@@ -45,15 +51,13 @@ export function ServiceWorkerRegistrar() {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
 
-    // Request notification permission if enabled in settings
     const notifEnabled = localStorage.getItem("sw_notifications_enabled");
     if (notifEnabled === "true" && "Notification" in window) {
       Notification.requestPermission().then((perm) => {
-        if (perm === "granted") {
-          const solunar = calculateSolunar(new Date());
-          scheduleNotifications(solunar.major_periods, "🔥 Major");
-          scheduleNotifications(solunar.minor_periods, "Minor");
-        }
+        if (perm !== "granted") return;
+        const solunar = calculateSolunar(new Date());
+        for (const [start] of solunar.major_periods) scheduleWindow(start, true);
+        for (const [start] of solunar.minor_periods) scheduleWindow(start, false);
       });
     }
   }, []);
