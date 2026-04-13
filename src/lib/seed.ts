@@ -1,0 +1,71 @@
+import type { RodSetup, Lure, SoftPlastic } from "@/engine/types";
+
+export const SEED_RODS: RodSetup[] = [
+  {
+    id: "rod-1",
+    name: "Baitcaster — Medium Heavy",
+    rod_type: "baitcaster",
+    rod_power: "medium_heavy",
+    rod_action: "fast",
+    line_type: "fluorocarbon",
+    line_lb: 15,
+    primary_lures: ["jig", "texas_rig", "chatterbait", "squarebill", "spinnerbait"],
+    rod_brand: "Dobyns",
+    rod_model: "Champion 735C",
+    reel_brand: "Shimano",
+    reel_model: "Curado DC",
+    gear_ratio: "7.4:1",
+    lure_weight_min_oz: 0.25,
+    lure_weight_max_oz: 1.0,
+  },
+  {
+    id: "rod-2",
+    name: "Spinning — Medium Light",
+    rod_type: "spinning",
+    rod_power: "medium_light",
+    rod_action: "fast",
+    line_type: "braid_fluoro_leader",
+    line_lb: 10,
+    primary_lures: ["dropshot", "ned_rig", "shaky_head", "neko_rig", "wacky_rig"],
+    rod_brand: "St. Croix",
+    rod_model: "Mojo Bass 6'10\" ML",
+    reel_brand: "Daiwa",
+    reel_model: "Exist LT",
+    gear_ratio: "6.2:1",
+    lure_weight_min_oz: 0.09,
+    lure_weight_max_oz: 0.375,
+  },
+  {
+    id: "rod-3",
+    name: "Topwater / Frog Rod",
+    rod_type: "baitcaster",
+    rod_power: "heavy",
+    rod_action: "moderate_fast",
+    line_type: "braid",
+    line_lb: 50,
+    primary_lures: ["topwater", "frog", "buzzbait", "fluke"],
+    rod_brand: "Abu Garcia",
+    rod_model: "Villain 2.0",
+    reel_brand: "Abu Garcia",
+    reel_model: "Revo Beast 41",
+    gear_ratio: "7.3:1",
+    lure_weight_min_oz: 0.375,
+    lure_weight_max_oz: 1.5,
+  },
+];
+
+export const SEED_LURES: Lure[] = [
+  { id: "lure-1", name: "Keitech Swing Impact 4.8\"", type: "swimbait_paddle", weight_oz: 0.5, color: "Pro Blue Red Pearl", brand: "Keitech" },
+  { id: "lure-2", name: "Berkley Powerbait Chigger Craw 4\"", type: "texas_rig", color: "Green Pumpkin", brand: "Berkley" },
+  { id: "lure-3", name: "Spro Little John 50", type: "diving_crank", weight_oz: 0.44, color: "Sexy Shad", brand: "Spro" },
+  { id: "lure-4", name: "Strike King Red Eye Shad 1/2oz", type: "lipless_crank", weight_oz: 0.5, color: "Red Crawfish", brand: "Strike King" },
+  { id: "lure-5", name: "Evergreen Shower Blows Wakebait", type: "topwater", weight_oz: 0.6, color: "Ghost Shad", brand: "Evergreen" },
+];
+
+export const SEED_PLASTICS: SoftPlastic[] = [
+  { id: "plastic-1", name: "Senko 5\"", brand: "Yamamoto", length_in: 5, style: "stick", color: "Green Pumpkin" },
+  { id: "plastic-2", name: "Zoom Ultra Vibe Speed Craw", brand: "Zoom", length_in: 3.5, style: "craw", color: "Black Blue" },
+  { id: "plastic-3", name: "Roboworm Straight Tail 4.5\"", brand: "Roboworm", length_in: 4.5, style: "finesse", color: "Aaron's Magic" },
+  { id: "plastic-4", name: "Strike King Rage Tail Craw", brand: "Strike King", length_in: 4, style: "creature", color: "Green Pumpkin" },
+  { id: "plastic-5", name: "Keitech Easy Shiner 3.5\"", brand: "Keitech", length_in: 3.5, style: "swimbait", color: "Electric Shad" },
+];

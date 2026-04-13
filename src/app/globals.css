@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0B0F1A;
+  --neon-pink: #ff0080;
+  --neon-cyan: #00f0ff;
+  --neon-purple: #9d00ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--navy);
+  color: #e2e8f0;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 0, 128, 0.3);
+  border-radius: 2px;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+/* Neon text */
+.neon-pink {
+  color: var(--neon-pink);
+  text-shadow: 0 0 10px rgba(255, 0, 128, 0.6);
+}
+.neon-cyan {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+}
+.neon-purple {
+  color: var(--neon-purple);
+  text-shadow: 0 0 10px rgba(157, 0, 255, 0.6);
+}
+
+/* Animated gradient nav */
+@keyframes neon-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.nav-gradient {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 0, 128, 0.15),
+    rgba(0, 240, 255, 0.15),
+    rgba(157, 0, 255, 0.15),
+    rgba(255, 0, 128, 0.15)
+  );
+  background-size: 300% 300%;
+  animation: neon-shift 8s ease infinite;
+  border-bottom: 1px solid rgba(255, 0, 128, 0.25);
+}
+
+/* Score bar */
+.score-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+}
+
+/* Pulse animation for loading */
+@keyframes neon-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.neon-pulse {
+  animation: neon-pulse 1.5s ease-in-out infinite;
+}
+
+/* Input focus ring */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.4);
+}
