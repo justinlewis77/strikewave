@@ -18,11 +18,14 @@ import { StructureFinder } from "@/components/StructureFinder";
 import { LureRotation } from "@/components/LureRotation";
 import { SpotPlanner } from "@/components/SpotPlanner";
 import { PressureChart } from "@/components/PressureChart";
+import { SunriseSunset } from "@/components/SunriseSunset";
+import { ForecastRow } from "@/components/ForecastRow";
+import { AnglerScore } from "@/components/AnglerScore";
 
 const BANK_FACING_KEY = "sw_bank_facing";
 
 export default function DashboardPage() {
-  const { rods, lures, catches, spots, settings, ready, saveCatch, removeCatch, saveSettings } = useDB();
+  const { rods, lures, catches, spots, reports, settings, ready, saveCatch, removeCatch, saveSettings } = useDB();
   const location = useLocation(settings.use_gps);
 
   const lat = location.lat ?? settings.location_lat ?? null;
@@ -80,6 +83,9 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+      {/* Sunrise/Sunset countdown — top of page */}
+      <SunriseSunset lat={lat} lon={lon} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -198,6 +204,12 @@ export default function DashboardPage() {
           <SpotPlanner snap={snapshot} spots={spots} />
         </div>
       )}
+
+      {/* 5-Day Forecast */}
+      <ForecastRow lat={lat} lon={lon} />
+
+      {/* Angler Improvement Score */}
+      <AnglerScore catches={catches} reports={reports} />
 
       {rods.length === 0 && ready && (
         <div className="glass-card p-6 text-center">

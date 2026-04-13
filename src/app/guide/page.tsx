@@ -15,6 +15,7 @@ import { BaitTuningGuide } from "@/components/BaitTuningGuide";
 import { SeasonalWeedGuide } from "@/components/SeasonalWeedGuide";
 import { DrillMode } from "@/components/DrillMode";
 import { FishingReportLog } from "@/components/FishingReportLog";
+import { BiologyCards } from "@/components/BiologyCards";
 
 const QUICK_PROMPTS = [
   "What's my best setup for right now?",
@@ -108,6 +109,9 @@ export default function GuidePage() {
               <SeasonalWeedGuide current_stage={snapshot.spawn_stage} />
             </div>
           )}
+          <div className="glass-card p-4">
+            <BiologyCards />
+          </div>
           <div className="glass-card p-4">
             <FishingReportLog
               reports={reports}

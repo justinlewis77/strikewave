@@ -188,6 +188,10 @@ export interface FishingSpot {
   lon: number;
   type: "shore" | "boat" | "structure" | "weed_edge";
   notes?: string;
+  access_type?: "public" | "private" | "seasonal";
+  parking_notes?: string;
+  bank_condition?: "muddy" | "rocky" | "sandy" | "weedy" | "mixed";
+  walkable_to?: string[];
 }
 
 export interface FishingReport {
