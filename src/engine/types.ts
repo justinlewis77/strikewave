@@ -20,6 +20,29 @@ export type LureType =
   | "buzzbait"
   | "underspun";
 
+export const LURE_TYPE_LABELS: Record<LureType, string> = {
+  jig: "Jig",
+  texas_rig: "Texas Rig",
+  chatterbait: "Chatterbait",
+  spinnerbait: "Spinnerbait",
+  topwater: "Topwater",
+  frog: "Frog",
+  dropshot: "Drop Shot",
+  shaky_head: "Shaky Head",
+  neko_rig: "Neko Rig",
+  wacky_rig: "Wacky Rig",
+  swimbait_paddle: "Swimbait (Paddle)",
+  swimbait_glide: "Swimbait (Glide)",
+  diving_crank: "Diving Crankbait",
+  squarebill: "Squarebill",
+  lipless_crank: "Lipless Crankbait",
+  ned_rig: "Ned Rig",
+  carolina_rig: "Carolina Rig",
+  fluke: "Fluke",
+  buzzbait: "Buzzbait",
+  underspun: "Underspin",
+};
+
 export type Season = "pre_spawn" | "spawn" | "post_spawn" | "summer" | "fall" | "winter";
 
 export type WaterClarity = "clear" | "stained" | "muddy";
@@ -30,6 +53,10 @@ export type RodPower = "ultralight" | "light" | "medium_light" | "medium" | "med
 
 export type RodAction = "fast" | "extra_fast" | "moderate_fast" | "moderate";
 
+export type FishingMode = "shore" | "boat";
+
+export type PressureTrend = "rising" | "falling" | "stable";
+
 export interface RodSetup {
   id: string;
   name: string;
@@ -39,12 +66,11 @@ export interface RodSetup {
   line_type: LineType;
   line_lb: number;
   primary_lures: LureType[];
-  // New gear fields
   rod_brand?: string;
   rod_model?: string;
   reel_brand?: string;
   reel_model?: string;
-  gear_ratio?: string; // e.g. "7.3:1"
+  gear_ratio?: string;
   lure_weight_min_oz?: number;
   lure_weight_max_oz?: number;
 }
@@ -77,6 +103,7 @@ export interface WeatherConditions {
   cloud_cover_pct: number;
   precip_mm: number;
   pressure_mb?: number;
+  pressure_trend?: PressureTrend;
   uv_index?: number;
   feels_like_f?: number;
   description?: string;
@@ -90,12 +117,23 @@ export interface SolunarData {
   solunar_score: number; // 0–1
 }
 
+export interface LakeProfile {
+  lake_name?: string;
+  water_type?: "lake" | "pond" | "river";
+  typical_clarity?: WaterClarity;
+  primary_cover?: Array<"weeds" | "docks" | "rocks" | "wood" | "lily_pads" | "open_water">;
+  depth_profile?: "shallow" | "mid" | "deep" | "mixed";
+}
+
 export interface ConditionSnapshot {
   weather: WeatherConditions;
   solunar: SolunarData;
   season: Season;
   spawn_stage: SpawnStage;
   water_clarity: WaterClarity;
+  fishing_mode: FishingMode;
+  bank_facing_deg?: number;
+  lake_profile?: LakeProfile;
   timestamp: number;
   location?: { lat: number; lon: number };
 }
@@ -124,12 +162,42 @@ export interface RodRecommendation {
   top_pick: LureScore;
 }
 
+export interface CatchEntry {
+  id: string;
+  date: string; // ISO date string
+  time: string; // HH:MM
+  lure_id?: string;
+  lure_name: string;
+  lure_color?: string;
+  weight_lbs?: number;
+  length_in?: number;
+  location_note?: string;
+  conditions?: {
+    temp_f?: number;
+    water_temp_f?: number;
+    wind_mph?: number;
+    spawn_stage?: SpawnStage;
+  };
+  fishing_mode: FishingMode;
+}
+
+export interface FishingSpot {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+  type: "shore" | "boat" | "structure" | "weed_edge";
+  notes?: string;
+}
+
 export interface AppSettings {
   location_lat?: number;
   location_lon?: number;
   location_name?: string;
   water_clarity: WaterClarity;
   use_gps: boolean;
-  pressure_trend?: "rising" | "falling" | "steady";
+  fishing_mode: FishingMode;
+  notifications_enabled?: boolean;
+  lake_profile?: LakeProfile;
   theme: "dark";
 }

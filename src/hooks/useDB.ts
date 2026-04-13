@@ -5,14 +5,17 @@ import {
   getRods, putRod, deleteRod,
   getLures, putLure, deleteLure,
   getPlastics, putPlastic, deletePlastic,
+  getCatches, putCatch, deleteCatch,
+  getSpots, putSpot, deleteSpot,
   getSettings, putSettings,
 } from "@/lib/db";
 import { SEED_RODS, SEED_LURES, SEED_PLASTICS } from "@/lib/seed";
-import type { RodSetup, Lure, SoftPlastic, AppSettings } from "@/engine/types";
+import type { RodSetup, Lure, SoftPlastic, AppSettings, CatchEntry, FishingSpot } from "@/engine/types";
 
 const DEFAULT_SETTINGS: AppSettings = {
   water_clarity: "stained",
   use_gps: true,
+  fishing_mode: "shore",
   theme: "dark",
 };
 
@@ -20,43 +23,38 @@ export function useDB() {
   const [rods, setRods] = useState<RodSetup[]>([]);
   const [lures, setLures] = useState<Lure[]>([]);
   const [plastics, setPlastics] = useState<SoftPlastic[]>([]);
+  const [catches, setCatches] = useState<CatchEntry[]>([]);
+  const [spots, setSpots] = useState<FishingSpot[]>([]);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [ready, setReady] = useState(false);
 
   const loadAll = useCallback(async () => {
-    const [r, l, p, s] = await Promise.all([
-      getRods(), getLures(), getPlastics(), getSettings(),
+    const [r, l, p, c, sp, s] = await Promise.all([
+      getRods(), getLures(), getPlastics(), getCatches(), getSpots(), getSettings(),
     ]);
 
-    // Seed on first load
     if (r.length === 0) {
       for (const rod of SEED_RODS) await putRod(rod);
       setRods(SEED_RODS);
-    } else {
-      setRods(r);
-    }
+    } else { setRods(r); }
 
     if (l.length === 0) {
       for (const lure of SEED_LURES) await putLure(lure);
       setLures(SEED_LURES);
-    } else {
-      setLures(l);
-    }
+    } else { setLures(l); }
 
     if (p.length === 0) {
       for (const plastic of SEED_PLASTICS) await putPlastic(plastic);
       setPlastics(SEED_PLASTICS);
-    } else {
-      setPlastics(p);
-    }
+    } else { setPlastics(p); }
 
+    setCatches(c);
+    setSpots(sp);
     setSettings(s ?? DEFAULT_SETTINGS);
     setReady(true);
   }, []);
 
-  useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+  useEffect(() => { loadAll(); }, [loadAll]);
 
   // Rods
   const saveRod = useCallback(async (rod: RodSetup) => {
@@ -66,7 +64,6 @@ export function useDB() {
       return idx >= 0 ? prev.map((r) => (r.id === rod.id ? rod : r)) : [...prev, rod];
     });
   }, []);
-
   const removeRod = useCallback(async (id: string) => {
     await deleteRod(id);
     setRods((prev) => prev.filter((r) => r.id !== id));
@@ -80,7 +77,6 @@ export function useDB() {
       return idx >= 0 ? prev.map((l) => (l.id === lure.id ? lure : l)) : [...prev, lure];
     });
   }, []);
-
   const removeLure = useCallback(async (id: string) => {
     await deleteLure(id);
     setLures((prev) => prev.filter((l) => l.id !== id));
@@ -94,10 +90,35 @@ export function useDB() {
       return idx >= 0 ? prev.map((p) => (p.id === plastic.id ? plastic : p)) : [...prev, plastic];
     });
   }, []);
-
   const removePlastic = useCallback(async (id: string) => {
     await deletePlastic(id);
     setPlastics((prev) => prev.filter((p) => p.id !== id));
+  }, []);
+
+  // Catches
+  const saveCatch = useCallback(async (entry: CatchEntry) => {
+    await putCatch(entry);
+    setCatches((prev) => {
+      const idx = prev.findIndex((c) => c.id === entry.id);
+      return idx >= 0 ? prev.map((c) => (c.id === entry.id ? entry : c)) : [...prev, entry];
+    });
+  }, []);
+  const removeCatch = useCallback(async (id: string) => {
+    await deleteCatch(id);
+    setCatches((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
+  // Spots
+  const saveSpot = useCallback(async (spot: FishingSpot) => {
+    await putSpot(spot);
+    setSpots((prev) => {
+      const idx = prev.findIndex((s) => s.id === spot.id);
+      return idx >= 0 ? prev.map((s) => (s.id === spot.id ? spot : s)) : [...prev, spot];
+    });
+  }, []);
+  const removeSpot = useCallback(async (id: string) => {
+    await deleteSpot(id);
+    setSpots((prev) => prev.filter((s) => s.id !== id));
   }, []);
 
   // Settings
@@ -107,10 +128,12 @@ export function useDB() {
   }, []);
 
   return {
-    rods, lures, plastics, settings, ready,
+    rods, lures, plastics, catches, spots, settings, ready,
     saveRod, removeRod,
     saveLure, removeLure,
     savePlastic, removePlastic,
+    saveCatch, removeCatch,
+    saveSpot, removeSpot,
     saveSettings,
     reload: loadAll,
   };

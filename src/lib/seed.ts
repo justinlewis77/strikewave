@@ -9,7 +9,7 @@ export const SEED_RODS: RodSetup[] = [
     rod_action: "fast",
     line_type: "fluorocarbon",
     line_lb: 15,
-    primary_lures: ["jig", "texas_rig", "chatterbait", "squarebill", "spinnerbait"],
+    primary_lures: ["jig", "texas_rig", "chatterbait", "squarebill", "spinnerbait", "lipless_crank"],
     rod_brand: "Dobyns",
     rod_model: "Champion 735C",
     reel_brand: "Shimano",
@@ -58,8 +58,9 @@ export const SEED_LURES: Lure[] = [
   { id: "lure-1", name: "Keitech Swing Impact 4.8\"", type: "swimbait_paddle", weight_oz: 0.5, color: "Pro Blue Red Pearl", brand: "Keitech" },
   { id: "lure-2", name: "Berkley Powerbait Chigger Craw 4\"", type: "texas_rig", color: "Green Pumpkin", brand: "Berkley" },
   { id: "lure-3", name: "Spro Little John 50", type: "diving_crank", weight_oz: 0.44, color: "Sexy Shad", brand: "Spro" },
-  { id: "lure-4", name: "Strike King Red Eye Shad 1/2oz", type: "lipless_crank", weight_oz: 0.5, color: "Red Crawfish", brand: "Strike King" },
-  { id: "lure-5", name: "Evergreen Shower Blows Wakebait", type: "topwater", weight_oz: 0.6, color: "Ghost Shad", brand: "Evergreen" },
+  { id: "lure-4", name: "Strike King Red Eye Shad 3/4oz", type: "lipless_crank", weight_oz: 0.75, color: "Red Craw", brand: "Strike King" },
+  { id: "lure-5", name: "Strike King Red Eye Shad 1/2oz", type: "lipless_crank", weight_oz: 0.5, color: "Chrome Blue", brand: "Strike King" },
+  { id: "lure-6", name: "Evergreen Shower Blows Wakebait", type: "topwater", weight_oz: 0.6, color: "Ghost Shad", brand: "Evergreen" },
 ];
 
 export const SEED_PLASTICS: SoftPlastic[] = [
