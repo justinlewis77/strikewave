@@ -1,4 +1,4 @@
-const CACHE_NAME = "strikewave-v1";
+const CACHE_NAME = "strikewave-v2";
 const STATIC_ASSETS = ["/", "/inventory", "/guide", "/settings", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -19,16 +19,12 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
-
-  // Network-first for API calls
   if (url.pathname.startsWith("/api/") || url.hostname !== self.location.hostname) {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
     );
     return;
   }
-
-  // Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((cached) =>
       cached || fetch(event.request).then((response) => {
@@ -37,5 +33,34 @@ self.addEventListener("fetch", (event) => {
         return response;
       })
     )
+  );
+});
+
+// Receive scheduled notification requests from the page
+self.addEventListener("message", (event) => {
+  if (!event.data || event.data.type !== "SCHEDULE_NOTIFICATION") return;
+  const { delay, title, body, icon } = event.data;
+  if (typeof delay !== "number" || delay <= 0 || delay > 86400000) return;
+  setTimeout(() => {
+    self.registration.showNotification(title || "🎣 StrikeWave", {
+      body: body || "Bite window opening now!",
+      icon: icon || "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: "bite-alert",
+      renotify: true,
+    });
+  }, delay);
+});
+
+// Handle notification click — open the app
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if ("focus" in client) return client.focus();
+      }
+      return self.clients.openWindow("/");
+    })
   );
 });

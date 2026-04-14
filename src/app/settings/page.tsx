@@ -40,8 +40,11 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     await saveSettings(form);
-    // Persist notification preference for ServiceWorkerRegistrar
     localStorage.setItem("sw_notifications_enabled", String(!!form.notifications_enabled));
+    // Cache lake name for service worker (SW can't access IndexedDB directly)
+    if (form.lake_profile?.lake_name) {
+      localStorage.setItem("sw_lake_name", form.lake_profile.lake_name);
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -254,10 +257,21 @@ export default function SettingsPage() {
               </div>
             </label>
             <button
-              onClick={() => {
-                if (Notification.permission === "granted") {
+              onClick={async () => {
+                if (Notification.permission !== "granted") return;
+                const lake = localStorage.getItem("sw_lake_name") || "Shinanguag Lake";
+                try {
+                  const reg = await navigator.serviceWorker.ready;
+                  await reg.showNotification("🎣 StrikeWave — Test Alert", {
+                    body: `🔥 MAJOR bite window starts in 30 min on ${lake} — GET ON THE WATER!`,
+                    icon: "/icons/icon-192.png",
+                    badge: "/icons/icon-192.png",
+                    tag: "bite-alert-test",
+                  });
+                } catch {
+                  // Fallback for browsers that don't support SW notifications
                   new Notification("🎣 StrikeWave — Test Alert", {
-                    body: "Major bite window starts in 30 min — get to the water! (Shinanguag Lake)",
+                    body: `Major bite window starts in 30 min on ${lake} — get to the water!`,
                     icon: "/icons/icon-192.png",
                   });
                 }
